@@ -17,11 +17,7 @@ else {
 fn unit_type() -> &'static str  {
     let mut count = 0;
     let mut unit = String::new();
-    loop {
-        if count == 3 {
-            println!("You have exceeded the number of attempts");
-            break "Invalid";
-        }
+    while count < 3 {
         println!("Please enter the unit type you would like to convert from. Type 'c' for Celsius or 'f' for Fahrenheit");
         io::stdin()
         .read_line(&mut unit)
@@ -39,16 +35,13 @@ fn unit_type() -> &'static str  {
             }
         };
         return unit;
-    }    
+    }
+    return "Invalid"; 
 }
 fn convert_temp(unit: &str){
     let mut count = 0;
     println!("Please enter the temperature you would like to convert");
-    loop {
-        if count == 3 {
-            println!("You have exceeded the number of attempts");
-            break;
-        }
+    while count < 3 {
         let mut temp = String::new();
         
         io::stdin()
