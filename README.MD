@@ -3,16 +3,24 @@
 #### main() function:
 
 ```
-fn main() { let unit = unit_type();
 
-if unit == "Invalid" { return; } else { println!("You have chosen to convert from {}",
-unit); convert_temp(unit); } }
+fn main() {
+let unit = get_unit_type();
+
+if unit == "Invalid" {
+    return;
+}
+else {
+    println!("You have chosen to convert from {unit}");
+    convert_temp(unit);
+}
+
 ```
 
 #### unit_type() function: This function expects an input and returns the selected unit if given a valid character. If the character input by the user is not 'f' or 'c', count goes up. If count reaches 3 (starting from 0) the program exits.
 
 ```
-fn unit_type() -> &'static str  {
+fn get_unit_type() -> &'static str  {
     let mut count = 0;
     let mut unit = String::new();
     while count < 3 {
@@ -21,30 +29,46 @@ fn unit_type() -> &'static str  {
         .read_line(&mut unit)
         .expect("Failed to read line");
 
-        let unit = match unit.trim().to_lowercase().as_str() {
-            "c" => "Celsius",
-            "f" => "Fahrenheit",
-            _ => {
-                println!("Please enter a valid unit type");
+        let mut unit = unit.trim().to_lowercase();
+
+        match validate_unit_type(&unit) {
+            Ok(valid_unit) => return valid_unit,
+            Err(message) => {
+                println!("{}", message);
                 println!("You have {} attempts remaining", 2 - count);
                 count += 1;
-                continue;
-
+                unit.clear();
             }
         };
-        return unit;
+
     }
-    return "Invalid";
+   return "Invalid";
 }
+
+
 
 ```
 
-#### convert_temp() function: Expects a unit as parameter and expects user input for temperature (number). It also has error handlign and gives the user 3 tries before exiting. The result is returned.
+### validate_unit_type() function: This function validates the unit type and returns an error message if the unit type is invalid.
+
+```
+fn validate_unit_type(unit: &str) -> Result<&'static str, &'static str> {
+    match unit.to_lowercase().as_str() {
+        "c" => Ok("Celsius"),
+        "f" => Ok("Fahrenheit"),
+        _ => Err("Please enter a valid unit type"),
+    }
+}
+```
+
+#### convert_temp() function: Expects a unit as parameter and expects user input for temperature (number). It also has error handlign and gives the user 3 tries before exiting.
 
 ```
 fn convert_temp(unit: &str){
     let mut count = 0;
+
     println!("Please enter the temperature you would like to convert");
+
     while count < 3 {
         let mut temp = String::new();
 
@@ -60,18 +84,25 @@ fn convert_temp(unit: &str){
                 continue;
             }
         };
-        if unit == "Celsius" {
-            let fahrenheit = (temp * 9.0/5.0) + 32.0;
-            return println!("{} degrees Celsius is {} degrees Fahrenheit", temp, fahrenheit);
-        } else if unit == "Fahrenheit" {
-            let celsius = (temp - 32.0) * 5.0/9.0;
-            return println!("{} degrees Fahrenheit is {} degrees Celsius", temp, celsius);
-        } else {
-            return println!("Invalid unit type");
+       match unit {
+        // Temperature in degrees Celsius (°C) = (Temperature in degrees Fahrenheit (°F) - 32) * 5/9
+            "Celsius" => {
+                let fahrenheit = (temp * 9.0 / 5.0) + 32.0;
+                println!("{} degrees Celsius is {} degrees Fahrenheit", temp, fahrenheit);
+                return;
+            }
+        // Temperature in degrees Fahrenheit (°F) = (Temperature in degrees Celsius (°C) * 9/5) + 32
+            "Fahrenheit" => {
+                let celsius = (temp - 32.0) * 5.0 / 9.0;
+                println!("{} degrees Fahrenheit is {} degrees Celsius", temp, celsius);
+                return;
+            }
+            _ => {
+                println!("Invalid unit type");
+                return;
+            }
         }
     }
 
 }
 ```
-
-#### Retrospect: The validation in the unit_type() and convert_temp() functions could have been extracted into a seperate function. In addition, the convert_temp() should have a return value in its declaration.
